@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+# Ignore the data folder
+/data/
+
+# Ignore the Docker Compose file
+docker-compose.yaml

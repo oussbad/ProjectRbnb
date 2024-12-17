@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update  # This line has been updated
+      ddl-auto: update  # This line keeps the JPA entities in sync with the DB schema
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
@@ -18,3 +18,8 @@ spring:
     enabled: true
     baseline-description: "init"
     baseline-version: 0
+
+  session:
+    store-type: jdbc  # This configures Spring Session to use JDBC for session storage
+    jdbc:
+      initialize-schema: always  # This ensures the session tables are created automatically

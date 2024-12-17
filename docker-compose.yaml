@@ -1,7 +1,7 @@
 services:
   postgresql:
     container_name: ms_pg_sql
-    image: postgres:13
+    image: postgres:latest  # Use the latest version of PostgreSQL
     environment:
       POSTGRES_USER: alibou
       POSTGRES_PASSWORD: alibou
@@ -13,6 +13,7 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+
   pgadmin:
     container_name: ms_pgadmin
     image: dpage/pgadmin4
@@ -27,7 +28,6 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
-
 
 networks:
   microservices-net:

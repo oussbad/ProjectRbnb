@@ -21,9 +21,24 @@ public class UserService {
             throw new IllegalArgumentException("Email already in use");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ROLE_CLIENT"); // Default role
+        //user.setRole("ROLE_CLIENT"); // Default role
         userRepository.save(user);
     }
+
+    public User authenticateUser(String email, String rawPassword) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        User user = userOptional.get();
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        return user; // Successfully authenticated
+    }
+
 
     public User getCurrentUser() {
         // Implement logic to fetch currently logged-in user

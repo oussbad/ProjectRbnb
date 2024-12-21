@@ -24,17 +24,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    // POST /api/users/login
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
         try {
-            User authenticatedUser = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-            // You can return a token or a success message (or handle session creation here)
-            return ResponseEntity.ok("Login successful for user: " + authenticatedUser.getEmail());
+            // authenticateUser now directly returns the token
+            String token = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(token); // Return token to the client
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
-
 
     // GET /api/users/profile
     @GetMapping("/profile")

@@ -15,7 +15,7 @@ public class HttpSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // Disables CSRF protection (optional)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/users/register").permitAll()  // Allow unauthenticated access to /register
+                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()  // Allow unauthenticated access to /register and /login
                         .anyRequest().authenticated())  // Secure all other endpoints
                 .formLogin(form -> form.disable()) // Disable form login if you're using token-based auth
                 .httpBasic(httpBasic -> httpBasic.disable()); // Disable basic authentication if not needed

@@ -21,7 +21,6 @@ public class UserService {
             throw new IllegalArgumentException("Email already in use");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ROLE_CLIENT"); // Default role
         userRepository.save(user);
     }
 

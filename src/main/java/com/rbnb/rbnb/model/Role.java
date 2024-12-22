@@ -15,29 +15,33 @@ import static com.rbnb.rbnb.model.Permission.*;
 @RequiredArgsConstructor
 public enum Role {
 
-    USER(Collections.emptySet()),
-    ADMIN(
+    ROLE_HOST(
             Set.of(
-                    ADMIN_READ,
-                    ADMIN_UPDATE,
-                    ADMIN_DELETE,
-                    ADMIN_CREATE,
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
+                    Permission.READ,
+                    Permission.HOST_UPDATE,
+                    Permission.HOST_CREATE,
+                    Permission.HOST_DELETE
             )
     ),
-    MANAGER(
+    ROLE_CLIENT(
             Set.of(
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
+                    Permission.READ,
+                    Permission.CLIENT_UPDATE,
+                    Permission.CLIENT_CREATE,
+                    Permission.CLIENT_DELETE
             )
-    )
+    ),
+    ROLE_ADMIN(
+            Set.of(
+                    Permission.READ,
+                    Permission.ADMIN_UPDATE,
+                    Permission.ADMIN_CREATE,
+                    Permission.ADMIN_DELETE
+            )
+    );
 
-    ;
+
+
 
     @Getter
     private final Set<Permission> permissions;

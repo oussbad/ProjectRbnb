@@ -1,66 +1,81 @@
 package com.rbnb.rbnb.controller;
 
+import com.rbnb.rbnb.dto.PropertyDto;
 import com.rbnb.rbnb.model.Property;
+import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.service.PropertyService;
+import com.rbnb.rbnb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/properties")
+@RestController
+@RequestMapping("/api/properties") // Utilisation d'un préfixe API
 public class PropertyController {
 
     @Autowired
     private PropertyService propertyService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping
-    public String listProperties(@RequestParam(required = false) String city,
-                                 @RequestParam(required = false) Double maxPrice,
-                                 @RequestParam(required = false) Integer bedrooms,
-                                 Model model) {
-        List<Property> properties = propertyService.searchProperties(city, maxPrice, bedrooms);
-        model.addAttribute("properties", properties);
-        return "property-list";
-    }
-
-    @GetMapping("/new")
-    public String showNewPropertyForm(Model model) {
-        model.addAttribute("property", new Property());
-        return "property-form";
-    }
-
+    // Publier une nouvelle annonce
     @PostMapping
-    public String saveProperty(@ModelAttribute("property") Property property) {
-        propertyService.saveProperty(property);
-        return "redirect:/properties";
+    public ResponseEntity<Property> createProperty(@RequestBody PropertyDto propertyDto) {
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info("Received PropertyDto: {}", propertyDto);
+        // Fetch the host by hostId
+        User host = userService.findById(propertyDto.getHostId())
+                .orElseThrow(() -> new RuntimeException("Host not found with ID: " + propertyDto.getHostId()));
+
+        // Map DTO to Entity
+        Property property = new Property();
+        property.setTitle(propertyDto.getTitle());
+        property.setDescription(propertyDto.getDescription());
+        property.setAddress(propertyDto.getAddress());
+        property.setCity(propertyDto.getCity());
+        property.setPricePerNight(propertyDto.getPricePerNight());
+        property.setBedrooms(propertyDto.getBedrooms());
+        property.setImages(propertyDto.getImages());
+        property.setHost(host);
+
+        // Save the property
+        Property savedProperty = propertyService.saveProperty(property);
+        return ResponseEntity.ok(savedProperty);
     }
 
-    @GetMapping("/{id}")
-    public String viewProperty(@PathVariable Long id, Model model) {
-        Property property = propertyService.getPropertyById(id);
-        model.addAttribute("property", property);
-        return "property-details";
+
+    // Modifier une annonce existante
+    @PutMapping("/{id}")
+    public ResponseEntity<Property> updateProperty(@PathVariable Long id, @RequestBody Property property) {
+        Property updatedProperty = propertyService.updateProperty(id, property);
+        return ResponseEntity.ok(updatedProperty);
     }
 
-    @GetMapping("/{id}/edit")
-    public String showEditPropertyForm(@PathVariable Long id, Model model) {
-        Property property = propertyService.getPropertyById(id);
-        model.addAttribute("property", property);
-        return "property-form";
-    }
-
-    @PostMapping("/{id}")
-    public String updateProperty(@PathVariable Long id, @ModelAttribute("property") Property property) {
-        propertyService.updateProperty(id, property);
-        return "redirect:/properties";
-    }
-
-    @PostMapping("/{id}/delete")
-    public String deleteProperty(@PathVariable Long id) {
+    // Supprimer une annonce
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);
-        return "redirect:/properties";
+        return ResponseEntity.ok("Property deleted successfully.");
+    }
+
+    // Visualiser les réservations pour un logement
+    @GetMapping("/{id}/bookings")
+    public ResponseEntity<List<?>> viewBookings(@PathVariable Long id) {
+        List<?> bookings = propertyService.getBookingsForProperty(id);
+        return ResponseEntity.ok(bookings);
+    }
+
+    // Rechercher des annonces avec filtres
+    @GetMapping
+    public ResponseEntity<List<Property>> listProperties(
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer bedrooms) {
+        List<Property> properties = propertyService.searchProperties(city, maxPrice, bedrooms);
+        return ResponseEntity.ok(properties);
     }
 }

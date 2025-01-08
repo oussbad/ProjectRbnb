@@ -16,6 +16,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
     public void registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email already in use");

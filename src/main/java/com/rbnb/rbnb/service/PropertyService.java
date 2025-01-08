@@ -13,12 +13,12 @@ public class PropertyService {
     @Autowired
     private PropertyRepository propertyRepository;
 
+    // Recherche des propriétés avec filtres
     public List<Property> searchProperties(String city, Double maxPrice, Integer bedrooms) {
-        // Apply filters if provided
         List<Property> properties = propertyRepository.findAll();
 
         if (city != null && !city.isEmpty()) {
-            properties = propertyRepository.findByCity(city);
+            properties.removeIf(property -> !property.getCity().equalsIgnoreCase(city));
         }
         if (maxPrice != null) {
             properties.removeIf(property -> property.getPricePerNight() > maxPrice);
@@ -30,25 +30,42 @@ public class PropertyService {
         return properties;
     }
 
+    // Récupérer une propriété par ID
     public Property getPropertyById(Long id) {
         return propertyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Property not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Property not found with ID: " + id));
     }
 
-    public void saveProperty(Property property) {
-        propertyRepository.save(property);
+    // Ajouter une nouvelle propriété
+    public Property saveProperty(Property property) {
+
+        return propertyRepository.save(property);
     }
 
-    public void updateProperty(Long id, Property updatedProperty) {
+    // Mise à jour d'une propriété
+    public Property updateProperty(Long id, Property updatedProperty) {
         Property existingProperty = getPropertyById(id);
         existingProperty.setTitle(updatedProperty.getTitle());
         existingProperty.setDescription(updatedProperty.getDescription());
+        existingProperty.setAddress(updatedProperty.getAddress());
+        existingProperty.setCity(updatedProperty.getCity());
         existingProperty.setPricePerNight(updatedProperty.getPricePerNight());
         existingProperty.setBedrooms(updatedProperty.getBedrooms());
-        propertyRepository.save(existingProperty);
+        existingProperty.setImages(updatedProperty.getImages());
+        return propertyRepository.save(existingProperty);
     }
 
+    // Suppression d'une propriété
     public void deleteProperty(Long id) {
+        if (!propertyRepository.existsById(id)) {
+            throw new IllegalArgumentException("Property not found with ID: " + id);
+        }
         propertyRepository.deleteById(id);
+    }
+
+    // Récupérer les réservations pour une propriété donnée
+    public List<?> getBookingsForProperty(Long propertyId) {
+        Property property = getPropertyById(propertyId);
+        return property.getBookings(); // Assurez-vous que les réservations sont bien chargées
     }
 }

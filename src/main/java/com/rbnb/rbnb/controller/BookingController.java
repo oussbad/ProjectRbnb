@@ -1,38 +1,39 @@
 package com.rbnb.rbnb.controller;
+
 import com.rbnb.rbnb.model.Booking;
+import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
-@Controller
-@RequestMapping("/bookings")
+@RestController
+@RequestMapping("/api/bookings")
 public class BookingController {
 
     @Autowired
     private BookingService bookingService;
 
-    @GetMapping
-    public String listBookings(Model model) {
-        List<Booking> bookings = bookingService.getUserBookings();
-        model.addAttribute("bookings", bookings);
-        return "booking-list";
+    // Endpoint to search for properties
+    @GetMapping("/search")
+    public List<Property> searchProperties(
+            @RequestParam(required = false) String city,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer numberOfRooms) {
+        return bookingService.searchProperties(city, startDate, endDate, maxPrice, numberOfRooms);
     }
 
-    @PostMapping("/new")
-    public String createBooking(@RequestParam Long propertyId,
-                                @RequestParam String startDate,
-                                @RequestParam String endDate) {
-        bookingService.createBooking(propertyId, startDate, endDate);
-        return "redirect:/bookings";
-    }
-
-    @PostMapping("/{id}/cancel")
-    public String cancelBooking(@PathVariable Long id) {
-        bookingService.cancelBooking(id);
-        return "redirect:/bookings";
+    // Endpoint to create a reservation
+    @PostMapping("/reserve")
+    public Booking createReservation(@RequestBody Map<String, Object> requestData) {
+        Long propertyId = ((Number) requestData.get("propertyId")).longValue();
+        String startDate = (String) requestData.get("startDate");
+        String endDate = (String) requestData.get("endDate");
+        return bookingService.createReservation(propertyId, startDate, endDate);
     }
 }

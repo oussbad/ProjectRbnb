@@ -7,6 +7,7 @@ import com.rbnb.rbnb.repositories.BookingRepository;
 import com.rbnb.rbnb.repositories.PropertyRepository;
 import com.rbnb.rbnb.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,32 +25,39 @@ public class BookingService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Booking> getUserBookings() {
-        User currentUser = userRepository.findByEmail("user@example.com") // Replace with real logic
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return bookingRepository.findByClient(currentUser);
+    public List<Property> searchProperties(String city, LocalDate startDate, LocalDate endDate, Double maxPrice, Integer numberOfRooms) {
+        return propertyRepository.findAvailableProperties(city, startDate, endDate, maxPrice, numberOfRooms);
     }
 
-    public void createBooking(Long propertyId, String startDate, String endDate) {
-        Property property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new IllegalArgumentException("Property not found"));
-        User client = userRepository.findByEmail("user@example.com") // Replace with real logic
+    public Booking createReservation(Long propertyId, String startDate, String endDate) {
+        // Retrieve the authenticated user's email from the security context
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Find the user by email
+        User client = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        // Find the property by ID
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new IllegalArgumentException("Property not found"));
+
+        // Parse the dates
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+
+        // Calculate the total cost based on the number of nights
+        long numberOfNights = end.toEpochDay() - start.toEpochDay();
+        double totalCost = property.getPricePerNight() * numberOfNights;
+
+        // Create and save the booking
         Booking booking = new Booking();
         booking.setProperty(property);
         booking.setClient(client);
-        booking.setStartDate(LocalDate.parse(startDate));
-        booking.setEndDate(LocalDate.parse(endDate));
-        booking.setTotalCost(property.getPricePerNight() *
-                (booking.getEndDate().toEpochDay() - booking.getStartDate().toEpochDay()));
-        booking.setStatus("PENDING");
-        bookingRepository.save(booking);
-    }
+        booking.setStartDate(start);
+        booking.setEndDate(end);
+        booking.setTotalCost(totalCost);
+        booking.setStatus("PENDING"); // Default status
 
-    public void cancelBooking(Long id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
-        bookingRepository.delete(booking);
+        return bookingRepository.save(booking);
     }
 }

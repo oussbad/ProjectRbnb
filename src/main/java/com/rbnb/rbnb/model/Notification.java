@@ -31,5 +31,5 @@ public class Notification {
     private User user;
 
     @Column(nullable = false)
-    private LocalDate createdAt = LocalDate.now();
+    private LocalDate timestamp = LocalDate.now();
 }

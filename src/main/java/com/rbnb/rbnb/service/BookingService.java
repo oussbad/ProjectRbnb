@@ -1,12 +1,14 @@
 package com.rbnb.rbnb.service;
 
 import com.rbnb.rbnb.model.Booking;
+import com.rbnb.rbnb.model.BookingStatus;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.repositories.BookingRepository;
 import com.rbnb.rbnb.repositories.PropertyRepository;
 import com.rbnb.rbnb.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -56,8 +58,37 @@ public class BookingService {
         booking.setStartDate(start);
         booking.setEndDate(end);
         booking.setTotalCost(totalCost);
-        booking.setStatus("PENDING"); // Default status
+        booking.setStatus(BookingStatus.PENDING); // Default status
 
         return bookingRepository.save(booking);
     }
+
+    public Booking updateBookingStatus(Long bookingId, BookingStatus status) {
+        // Retrieve the authenticated user's email from the security context
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Find the authenticated user by email
+        User authenticatedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Find the booking by ID
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        // Get the property associated with the booking
+        Property property = booking.getProperty();
+
+        // Get the host of the property
+        User host = property.getHost();
+
+        // Check if the authenticated user is the host
+        if (!host.getId().equals(authenticatedUser.getId())) {
+            throw new AccessDeniedException("You are not authorized to update this booking.");
+        }
+
+        // Update the booking status
+        booking.setStatus(status);
+        return bookingRepository.save(booking);
+    }
+
 }

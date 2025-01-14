@@ -36,6 +36,7 @@ public class Booking {
     @Column(nullable = false)
     private double totalCost;
 
+    @Enumerated(EnumType.STRING) // Store the enum as a string in the database
     @Column(nullable = false)
-    private String status; // Possible values: PENDING, ACCEPTED, DECLINED
+    private BookingStatus status;  // Possible values: PENDING, ACCEPTED, DECLINED
 }

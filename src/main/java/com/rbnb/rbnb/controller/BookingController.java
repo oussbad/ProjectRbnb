@@ -1,6 +1,7 @@
 package com.rbnb.rbnb.controller;
 
 import com.rbnb.rbnb.model.Booking;
+import com.rbnb.rbnb.model.BookingStatus;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,4 +37,11 @@ public class BookingController {
         String endDate = (String) requestData.get("endDate");
         return bookingService.createReservation(propertyId, startDate, endDate);
     }
+    @PutMapping("/{id}/status")
+    public Booking updateBookingStatus(@PathVariable Long id, @RequestBody Map<String, String> requestData) {
+        String statusStr = requestData.get("status");
+        BookingStatus status = BookingStatus.valueOf(statusStr); // Convert string to enum
+        return bookingService.updateBookingStatus(id, status);
+    }
+
 }

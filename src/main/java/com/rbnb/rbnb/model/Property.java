@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,11 +43,14 @@ public class Property {
 
     @ManyToOne
     @JoinColumn(name = "host_id", nullable = false)
+    @JsonIgnore
     private User host;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Booking> bookings;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Review> reviews;
 }

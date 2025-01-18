@@ -7,6 +7,8 @@ import com.rbnb.rbnb.service.PropertyService;
 import com.rbnb.rbnb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,7 @@ public class PropertyController {
     // Modifier une annonce existante
     @PutMapping("/{id}")
     public ResponseEntity<Property> updateProperty(@PathVariable Long id, @RequestBody Property property) {
+
         Property updatedProperty = propertyService.updateProperty(id, property);
         return ResponseEntity.ok(updatedProperty);
     }
@@ -76,6 +79,19 @@ public class PropertyController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Integer bedrooms) {
         List<Property> properties = propertyService.searchProperties(city, maxPrice, bedrooms);
+        return ResponseEntity.ok(properties);
+    }
+    @GetMapping("/my-properties")
+    public ResponseEntity<List<Property>> getPropertiesByHost(@AuthenticationPrincipal UserDetails userDetails) {
+        // Get the authenticated user's email (username)
+        String email = userDetails.getUsername();
+
+        // Fetch the host user by email
+        User host = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Host not found with email: " + email));
+
+        // Fetch all properties published by the host
+        List<Property> properties = propertyService.getPropertiesByHost(host);
         return ResponseEntity.ok(properties);
     }
 }

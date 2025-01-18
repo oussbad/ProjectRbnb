@@ -1,6 +1,7 @@
 package com.rbnb.rbnb.service;
 
 import com.rbnb.rbnb.model.Property;
+import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.repositories.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,5 +68,9 @@ public class PropertyService {
     public List<?> getBookingsForProperty(Long propertyId) {
         Property property = getPropertyById(propertyId);
         return property.getBookings(); // Assurez-vous que les réservations sont bien chargées
+    }
+
+    public List<Property> getPropertiesByHost(User host) {
+        return propertyRepository.findByHost(host); // Fetch properties by host
     }
 }

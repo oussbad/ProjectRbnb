@@ -33,4 +33,7 @@ public class UserService {
         return userRepository.findByEmail("user@example.com") // Replace with real logic
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email); // Delegate to the repository
+    }
 }

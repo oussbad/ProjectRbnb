@@ -26,6 +26,7 @@ public class SecurityConfiguration {
 
 
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
+            "/api/**",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -51,6 +52,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers("/api/v1/management/**").hasAnyRole("ADMIN", "MANAGER")

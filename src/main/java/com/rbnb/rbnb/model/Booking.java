@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,10 +22,14 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
+    @JsonIgnore
+
     private User client;
 
     @ManyToOne
     @JoinColumn(name = "property_id", nullable = false)
+    @JsonIgnore
+
     private Property property;
 
     @Column(nullable = false)
@@ -34,9 +39,13 @@ public class Booking {
     private LocalDate endDate;
 
     @Column(nullable = false)
+    @JsonIgnore
+
     private double totalCost;
 
     @Enumerated(EnumType.STRING) // Store the enum as a string in the database
     @Column(nullable = false)
+    @JsonIgnore
+
     private BookingStatus status;  // Possible values: PENDING, ACCEPTED, DECLINED
 }

@@ -1,11 +1,11 @@
 package com.rbnb.rbnb.controller;
 
+import com.rbnb.rbnb.model.Payment;
 import com.rbnb.rbnb.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController // Use @RestController instead of @Controller
 @RequestMapping("/payments")
 public class PaymentController {
 
@@ -13,8 +13,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/{bookingId}")
-    public String processPayment(@PathVariable Long bookingId, @RequestParam double amount) {
-        paymentService.processPayment(bookingId, amount);
-        return "redirect:/bookings";
+    public Payment processPayment(@PathVariable Long bookingId, @RequestParam double amount) {
+        return paymentService.processPayment(bookingId, amount); // Return the Payment object
     }
 }

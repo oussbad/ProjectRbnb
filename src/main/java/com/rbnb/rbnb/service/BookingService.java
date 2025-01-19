@@ -1,10 +1,8 @@
 package com.rbnb.rbnb.service;
 
-import com.rbnb.rbnb.model.Booking;
-import com.rbnb.rbnb.model.BookingStatus;
-import com.rbnb.rbnb.model.Property;
-import com.rbnb.rbnb.model.User;
+import com.rbnb.rbnb.model.*;
 import com.rbnb.rbnb.repositories.BookingRepository;
+import com.rbnb.rbnb.repositories.NotificationRepository;
 import com.rbnb.rbnb.repositories.PropertyRepository;
 import com.rbnb.rbnb.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingService {
@@ -22,14 +21,13 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private PropertyRepository propertyRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    public List<Property> searchProperties(String city, LocalDate startDate, LocalDate endDate, Double maxPrice, Integer numberOfRooms) {
-        return propertyRepository.findAvailableProperties(city, startDate, endDate, maxPrice, numberOfRooms);
-    }
+    private NotificationRepository notificationRepository;
 
     public Booking createReservation(Long propertyId, String startDate, String endDate) {
         // Retrieve the authenticated user's email from the security context
@@ -58,9 +56,18 @@ public class BookingService {
         booking.setStartDate(start);
         booking.setEndDate(end);
         booking.setTotalCost(totalCost);
-        booking.setStatus(BookingStatus.PENDING); // Default status
+        booking.setStatus(BookingStatus.PENDING);
 
-        return bookingRepository.save(booking);
+        // Save the booking
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Create a notification for the host
+        User host = property.getHost();
+        String message = "New reservation for " + property.getTitle() + " by " + client.getFirstname() + " " + client.getLastname() + ".";
+        Notification notification = new Notification(host, message);
+        notificationRepository.save(notification);
+
+        return savedBooking;
     }
 
     public Booking updateBookingStatus(Long bookingId, BookingStatus status) {
@@ -88,7 +95,17 @@ public class BookingService {
 
         // Update the booking status
         booking.setStatus(status);
-        return bookingRepository.save(booking);
-    }
+        Booking updatedBooking = bookingRepository.save(booking);
 
+        // Create a notification for the client
+        User client = booking.getClient();
+        String message = "Your reservation for " + property.getTitle() + " has been " + status.toString().toLowerCase() + ".";
+        Notification notification = new Notification(client, message);
+        notificationRepository.save(notification);
+
+        return updatedBooking;
+    }
+    public List<Property> searchProperties(String city, LocalDate startDate, LocalDate endDate, Double maxPrice, Integer numberOfRooms) {
+        return propertyRepository.findAvailableProperties(city, startDate, endDate, maxPrice, numberOfRooms);
+    }
 }

@@ -18,7 +18,7 @@ public class PaymentService {
     @Autowired
     private BookingRepository bookingRepository;
 
-    public void processPayment(Long bookingId, double amount) {
+    public Payment processPayment(Long bookingId, double amount) {
         // Fetch Booking
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
@@ -31,7 +31,7 @@ public class PaymentService {
         payment.setPaymentStatus("SUCCESS");
         payment.setPaymentDate(LocalDate.now());
 
-        // Save Payment
-        paymentRepository.save(payment);
+        // Save Payment and return it
+        return paymentRepository.save(payment);
     }
 }

@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.service;
 
+import com.rbnb.rbnb.dto.ReviewResponseDTO;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.model.Review;
 import com.rbnb.rbnb.model.User;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -42,10 +44,7 @@ public class ReviewService {
     }
 
     // Get all reviews for a property
-    public List<Review> getPropertyReviews(Long propertyId) {
-        Property property = propertyService.getPropertyById(propertyId);
-        return reviewRepository.findByProperty(property);
-    }
+
 
     // Update a review
     public Review updateReview(Long id, Review updatedReview) {
@@ -59,5 +58,23 @@ public class ReviewService {
     // Delete a review
     public void deleteReview(Long id) {
         reviewRepository.deleteById(id);
+    }
+    public List<ReviewResponseDTO> getPropertyReviews(Long propertyId) {
+        Property property = propertyService.getPropertyById(propertyId);
+        return reviewRepository.findByProperty(property).stream()
+                .map(this::convertToReviewResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Convert a Review entity to a ReviewResponseDTO
+    private ReviewResponseDTO convertToReviewResponseDTO(Review review) {
+        ReviewResponseDTO dto = new ReviewResponseDTO();
+        dto.setId(review.getId());
+        dto.setRating(review.getRating());
+        dto.setComment(review.getComment());
+        dto.setUserEmail(review.getUser().getEmail());
+        dto.setUserName(review.getUser().getFirstname() + " " + review.getUser().getLastname());
+        dto.setCreatedAt(review.getCreatedAt());
+        return dto;
     }
 }

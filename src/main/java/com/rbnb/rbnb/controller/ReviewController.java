@@ -1,6 +1,7 @@
 package com.rbnb.rbnb.controller;
 
 import com.rbnb.rbnb.dto.ReviewRequest;
+import com.rbnb.rbnb.dto.ReviewResponseDTO;
 import com.rbnb.rbnb.model.Review;
 import com.rbnb.rbnb.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +53,8 @@ public class ReviewController {
 
     // Get all reviews for a property
     @GetMapping("/property/{propertyId}")
-    public ResponseEntity<List<Review>> getReviewsByPropertyId(@PathVariable Long propertyId) {
-        List<Review> reviews = reviewService.getPropertyReviews(propertyId); // Use getPropertyReviews
+    public ResponseEntity<List<ReviewResponseDTO>> getReviewsByPropertyId(@PathVariable Long propertyId) {
+        List<ReviewResponseDTO> reviews = reviewService.getPropertyReviews(propertyId);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 }

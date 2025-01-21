@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.config;
 
+import com.rbnb.rbnb.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -50,6 +51,11 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
+        // Add the user ID to the claims if the UserDetails is an instance of your custom User class
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            extraClaims.put("userId", user.getId()); // Add user ID to the claims
+        }
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -99,5 +105,10 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    // Extract the user ID from the token
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userId", Long.class); // Extract the user ID from the claims
     }
 }

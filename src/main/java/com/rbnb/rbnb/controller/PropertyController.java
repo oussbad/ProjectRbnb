@@ -48,7 +48,12 @@ public class PropertyController {
         Property savedProperty = propertyService.saveProperty(property);
         return ResponseEntity.ok(savedProperty);
     }
-
+   //get a specific property
+    @GetMapping("/{id}")
+    public ResponseEntity<Property> getPropertyById(@PathVariable Long id) {
+        Property property = propertyService.getPropertyById(id);
+        return ResponseEntity.ok(property);
+    }
 
     // Modifier une annonce existante
     @PutMapping("/{id}")

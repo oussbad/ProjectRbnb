@@ -107,8 +107,8 @@ public class BookingService {
 
         return updatedBooking;
     }
-    public List<Property> searchProperties(String city, LocalDate startDate, LocalDate endDate, Double maxPrice, Integer numberOfRooms) {
-        return propertyRepository.findAvailableProperties(city, startDate, endDate, maxPrice, numberOfRooms);
+    public List<Property> searchProperties(String city,  Double maxPrice, Integer numberOfRooms) {
+        return propertyRepository.findAvailableProperties(city, maxPrice, numberOfRooms);
     }
     public List<BookingResponseDTO> getAllBookings() {
         return bookingRepository.findAll().stream()

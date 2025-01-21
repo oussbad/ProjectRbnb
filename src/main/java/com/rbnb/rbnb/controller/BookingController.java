@@ -23,11 +23,10 @@ public class BookingController {
     @GetMapping("/search")
     public List<Property> searchProperties(
             @RequestParam(required = false) String city,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
+
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Integer numberOfRooms) {
-        return bookingService.searchProperties(city, startDate, endDate, maxPrice, numberOfRooms);
+        return bookingService.searchProperties(city, maxPrice, numberOfRooms);
     }
 
     // Endpoint to create a reservation

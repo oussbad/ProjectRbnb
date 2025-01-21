@@ -46,15 +46,12 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
                                                   @Param("minBedrooms") Integer minBedrooms,
                                                   Pageable pageable);
     @Query("SELECT p FROM Property p WHERE " +
-            "( p.city = :city) AND " +
-            "( p.pricePerNight <= :maxPrice) AND " +
-            "( p.bedrooms >= :numberOfRooms) AND " +
-            "NOT EXISTS (SELECT b FROM Booking b WHERE b.property = p AND " +
-            "(b.startDate < :endDate AND b.endDate > :startDate))")
+            "( p.city = :city) OR " +
+            "( p.pricePerNight <= :maxPrice) OR " +
+            "( p.bedrooms >= :numberOfRooms) " )
     List<Property> findAvailableProperties(
             @Param("city") String city,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
+
             @Param("maxPrice") Double maxPrice,
             @Param("numberOfRooms") Integer numberOfRooms);
 

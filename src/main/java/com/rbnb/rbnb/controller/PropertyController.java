@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.controller;
 
+import com.rbnb.rbnb.dto.BookingResponseDTO;
 import com.rbnb.rbnb.dto.PropertyDto;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.model.User;
@@ -72,8 +73,8 @@ public class PropertyController {
 
     // Visualiser les réservations pour un logement
     @GetMapping("/{id}/bookings")
-    public ResponseEntity<List<?>> viewBookings(@PathVariable Long id) {
-        List<?> bookings = propertyService.getBookingsForProperty(id);
+    public ResponseEntity<List<BookingResponseDTO>> viewBookings(@PathVariable Long id) {
+        List<BookingResponseDTO> bookings = propertyService.getBookingsForProperty(id);
         return ResponseEntity.ok(bookings);
     }
 

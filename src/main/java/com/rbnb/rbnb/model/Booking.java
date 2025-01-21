@@ -39,13 +39,9 @@ public class Booking {
     private LocalDate endDate;
 
     @Column(nullable = false)
-    @JsonIgnore
-
     private double totalCost;
 
     @Enumerated(EnumType.STRING) // Store the enum as a string in the database
     @Column(nullable = false)
-    @JsonIgnore
-
     private BookingStatus status;  // Possible values: PENDING, ACCEPTED, DECLINED
 }

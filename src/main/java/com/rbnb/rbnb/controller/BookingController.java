@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.controller;
 
+import com.rbnb.rbnb.dto.BookingResponseDTO;
 import com.rbnb.rbnb.model.Booking;
 import com.rbnb.rbnb.model.BookingStatus;
 import com.rbnb.rbnb.model.Property;
@@ -42,6 +43,10 @@ public class BookingController {
         String statusStr = requestData.get("status");
         BookingStatus status = BookingStatus.valueOf(statusStr); // Convert string to enum
         return bookingService.updateBookingStatus(id, status);
+    }
+    @GetMapping
+    public List<BookingResponseDTO> getAllBookings() {
+        return bookingService.getAllBookings();
     }
 
 }

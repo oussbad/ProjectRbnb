@@ -1,5 +1,6 @@
 package com.rbnb.rbnb.service;
 
+import com.rbnb.rbnb.dto.BookingResponseDTO;
 import com.rbnb.rbnb.model.*;
 import com.rbnb.rbnb.repositories.BookingRepository;
 import com.rbnb.rbnb.repositories.NotificationRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -107,5 +109,23 @@ public class BookingService {
     }
     public List<Property> searchProperties(String city, LocalDate startDate, LocalDate endDate, Double maxPrice, Integer numberOfRooms) {
         return propertyRepository.findAvailableProperties(city, startDate, endDate, maxPrice, numberOfRooms);
+    }
+    public List<BookingResponseDTO> getAllBookings() {
+        return bookingRepository.findAll().stream()
+                .map(this::convertToBookingResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private BookingResponseDTO convertToBookingResponseDTO(Booking booking) {
+        BookingResponseDTO dto = new BookingResponseDTO();
+        dto.setId(booking.getId());
+        dto.setPropertyName(booking.getProperty().getTitle());
+        dto.setClientEmail(booking.getClient().getEmail());
+        dto.setClientName(booking.getClient().getFirstname() + " " + booking.getClient().getLastname()); // Set client name
+        dto.setStartDate(booking.getStartDate().toString());
+        dto.setEndDate(booking.getEndDate().toString());
+        dto.setTotalCost(booking.getTotalCost());
+        dto.setStatus(booking.getStatus().toString());
+        return dto;
     }
 }

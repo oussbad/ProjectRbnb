@@ -1,5 +1,7 @@
 package com.rbnb.rbnb.service;
 
+import com.rbnb.rbnb.dto.BookingResponseDTO;
+import com.rbnb.rbnb.model.Booking;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.repositories.PropertyRepository;
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyService {
@@ -65,12 +68,29 @@ public class PropertyService {
     }
 
     // Récupérer les réservations pour une propriété donnée
-    public List<?> getBookingsForProperty(Long propertyId) {
-        Property property = getPropertyById(propertyId);
-        return property.getBookings(); // Assurez-vous que les réservations sont bien chargées
-    }
 
     public List<Property> getPropertiesByHost(User host) {
         return propertyRepository.findByHost(host); // Fetch properties by host
+    }
+    public List<BookingResponseDTO> getBookingsForProperty(Long propertyId) {
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new IllegalArgumentException("Property not found with id: " + propertyId));
+
+        return property.getBookings().stream()
+                .map(this::convertToBookingResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private BookingResponseDTO convertToBookingResponseDTO(Booking booking) {
+        BookingResponseDTO dto = new BookingResponseDTO();
+        dto.setId(booking.getId());
+        dto.setPropertyName(booking.getProperty().getTitle());
+        dto.setClientEmail(booking.getClient().getEmail());
+        dto.setClientName(booking.getClient().getFirstname() + " " + booking.getClient().getLastname());
+        dto.setStartDate(booking.getStartDate().toString());
+        dto.setEndDate(booking.getEndDate().toString());
+        dto.setTotalCost(booking.getTotalCost());
+        dto.setStatus(booking.getStatus().toString());
+        return dto;
     }
 }

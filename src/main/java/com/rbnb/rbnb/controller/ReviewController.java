@@ -1,43 +1,59 @@
 package com.rbnb.rbnb.controller;
 
+import com.rbnb.rbnb.dto.ReviewRequest;
 import com.rbnb.rbnb.model.Review;
 import com.rbnb.rbnb.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/reviews")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/reviews")
 public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
 
+    // Save a new review
     @PostMapping
-    public String saveReview(@RequestParam Long propertyId,
-                             @RequestParam int rating,
-                             @RequestParam String comment) {
-        reviewService.saveReview(propertyId, rating, comment);
-        return "redirect:/properties/" + propertyId;
+    public ResponseEntity<Review> saveReview(@RequestBody ReviewRequest reviewRequest) {
+        Review savedReview = reviewService.saveReview(
+                reviewRequest.getPropertyId(),
+                reviewRequest.getRating(),
+                reviewRequest.getComment()
+        );
+        return new ResponseEntity<>(savedReview, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}/edit")
-    public String editReview(@PathVariable Long id, Model model) {
+    // Get a review by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
         Review review = reviewService.getReviewById(id);
-        model.addAttribute("review", review);
-        return "review-form";
+        return new ResponseEntity<>(review, HttpStatus.OK);
     }
 
-    @PostMapping("/{id}")
-    public String updateReview(@PathVariable Long id, @ModelAttribute("review") Review review) {
-        reviewService.updateReview(id, review);
-        return "redirect:/properties/" + review.getProperty().getId();
+    // Update a review
+    @PutMapping("/{id}")
+    public ResponseEntity<Review> updateReview(@PathVariable Long id,
+                                               @RequestBody Review review) {
+        Review updatedReview = reviewService.updateReview(id, review);
+        return new ResponseEntity<>(updatedReview, HttpStatus.OK);
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteReview(@PathVariable Long id) {
+    // Delete a review
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
         reviewService.deleteReview(id);
-        return "redirect:/properties";
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // Get all reviews for a property
+    @GetMapping("/property/{propertyId}")
+    public ResponseEntity<List<Review>> getReviewsByPropertyId(@PathVariable Long propertyId) {
+        List<Review> reviews = reviewService.getPropertyReviews(propertyId); // Use getPropertyReviews
+        return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 }

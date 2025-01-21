@@ -2,6 +2,9 @@ package com.rbnb.rbnb.service;
 import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +31,18 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        // Implement logic to fetch currently logged-in user
-        // Example: Retrieve from SecurityContextHolder
-        return userRepository.findByEmail("user@example.com") // Replace with real logic
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // Retrieve the authentication object from the security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
+
+        // Get the username (email) from the authentication object
+        String email = authentication.getName();
+
+        // Find the user by email
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email); // Delegate to the repository

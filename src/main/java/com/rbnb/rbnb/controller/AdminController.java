@@ -1,6 +1,7 @@
 package com.rbnb.rbnb.controller;
 
 import com.rbnb.rbnb.dto.ReviewResponseDTO;
+import com.rbnb.rbnb.dto.UserResponseDTO;
 import com.rbnb.rbnb.model.Property;
 import com.rbnb.rbnb.model.User;
 import com.rbnb.rbnb.service.AdminService;
@@ -24,8 +25,8 @@ public class AdminController {
 
     // Get all users
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = adminService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = adminService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 

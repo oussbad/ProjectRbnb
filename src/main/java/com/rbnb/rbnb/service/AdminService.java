@@ -18,18 +18,22 @@ public class AdminService {
     @Autowired
     private PropertyRepository propertyRepository;
 
+    // Get all users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    // Delete a user by ID
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    // Get all properties
     public List<Property> getAllProperties() {
         return propertyRepository.findAll();
     }
 
+    // Delete a property by ID
     public void deleteProperty(Long id) {
         propertyRepository.deleteById(id);
     }
